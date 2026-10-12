@@ -1,6 +1,6 @@
 :root {
     --primary: #1e293b;
-    --accent: #f97316;
+    --accent: #00c853;
     --dark: #0f172a;
     --light: #f8fafc;
     --text: #334155;
@@ -18,8 +18,16 @@ nav ul li { margin-left: 1.5rem; }
 nav ul li a { color: var(--white); text-decoration: none; font-weight: 500; }
 nav ul li a:hover { color: var(--accent); }
 .hero {
-    background: linear-gradient(135deg, rgba(220, 252, 231, 0.95), rgba(240, 253, 244, 0.95)), url('https://unsplash.com') no-repeat center center/cover;
-    height: 55vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #1e293b; padding: 0 1rem;
+    background-image: url('en%20tete/H%C3%A9ro%20web%20BTP%2C%20Data%20et%20IA_edited.png');
+    background-size: contain;
+    background-position: center top;
+    background-repeat: no-repeat;
+    width: 100%;
+    aspect-ratio: 16 / 6;
+    min-height: 0;
+    height: auto;
+    display: block;
+    padding: 0;
 }
 .hero-content h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--primary); }
 .hero-content h2 { font-size: 1.8rem; margin-bottom: 1rem; color: var(--accent); }
@@ -38,3 +46,26 @@ nav ul li a:hover { color: var(--accent); }
 .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 500; }
 .form-group input, .form-group textarea { width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; }
 footer { background-color: var(--dark); color: #94a3b8; text-align: center; padding: 1.5rem; font-size: 0.85rem; margin-top: 2rem; }
+
+#apropos.container {
+    width: 100%;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+}
+
+#apropos h2 {
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #0b2545;
+}
+
+#apropos p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: #334155;
+    max-width: 800px;
+    margin: 0 auto 18px;
+    text-align: left;
+}

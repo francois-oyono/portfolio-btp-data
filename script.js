@@ -6,15 +6,15 @@ document.addEventListener("DOMContentLoaded", function() {
             labels: ['Terrassement', 'Fondations', 'Gros Œuvre', 'Fluides & Réseaux', 'Second Œuvre', 'Finitions'],
             datasets: [{
                 label: 'Budget Prévisionnel Initial (€)',
-                data:,
+                data: [],
                 borderColor: '#1e293b',
                 borderWidth: 2,
-                borderDash:,
+                borderDash: [5, 5],
                 fill: false
             },
             {
                 label: 'Coût Réel Optimisé via Data & IA (€)',
-                data:,
+                data: [],
                 borderColor: '#f97316',
                 backgroundColor: 'rgba(249, 115, 22, 0.1)',
                 borderWidth: 3,
@@ -33,8 +33,3 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('Merci ! Votre demande de contact a bien été simulée.');
-    this.reset();
-});
