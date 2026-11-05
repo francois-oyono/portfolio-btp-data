@@ -1,35 +1,53 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('monGraphique').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Terrassement', 'Fondations', 'Gros Œuvre', 'Fluides & Réseaux', 'Second Œuvre', 'Finitions'],
-            datasets: [{
-                label: 'Budget Prévisionnel Initial (€)',
-                data: [],
-                borderColor: '#1e293b',
-                borderWidth: 2,
-                borderDash: [5, 5],
-                fill: false
-            },
-            {
-                label: 'Coût Réel Optimisé via Data & IA (€)',
-                data: [],
-                borderColor: '#f97316',
-                backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                borderWidth: 3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'top' } },
-            scales: {
-                y: { title: { display: true, text: 'Montant (€)' } },
-                x: { title: { display: true, text: 'Phases du Chantier' } }
-            }
-        }
-    });
-});
-
+'use strict';
+const $ = (selector, parent = document) => parent.querySelector(selector);
+const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+let toastTimer;
+function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('visible'), 4000); }
+async function copyText(value, success) { try { await navigator.clipboard.writeText(value); toast(success); } catch { const input = document.createElement('textarea'); input.value = value; input.style.position = 'fixed'; input.style.opacity = '0'; document.body.append(input); input.select(); const copied = document.execCommand('copy'); input.remove(); toast(copied ? success : 'Copie indisponible : sélectionnez le texte pour le copier.'); } }
+const menu = $('.menu-toggle'), nav = $('#navigation');
+menu.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') !== 'true'; menu.setAttribute('aria-expanded', String(open)); menu.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu'); nav.classList.toggle('open', open); });
+function closeMenu() { menu.setAttribute('aria-expanded', 'false'); menu.setAttribute('aria-label', 'Ouvrir le menu'); nav.classList.remove('open'); }
+$$('a[href^="#"]', nav).forEach(a => a.addEventListener('click', closeMenu));
+document.addEventListener('click', e => { if (!e.target.closest('.site-header')) closeMenu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+const navLinks = $$('a[href^="#"]', nav);
+const sectionObserver = new IntersectionObserver(entries => { const visible = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio); if (visible.length) { const id = visible[0].target.id; navLinks.forEach(a => { if (a.hash === '#' + id) a.setAttribute('aria-current','location'); else a.removeAttribute('aria-current'); }); } }, { rootMargin: '-15% 0px -55% 0px', threshold: [0, .15, .4] });
+$$('main > section').forEach(s => sectionObserver.observe(s));
+const tabs = $$('[role="tab"]');
+function selectTab(tab, focus = false) { tabs.forEach(t => { const active = t === tab; t.setAttribute('aria-selected', String(active)); t.tabIndex = active ? 0 : -1; $('#' + t.getAttribute('aria-controls')).hidden = !active; }); if (focus) tab.focus(); }
+tabs.forEach((tab, i) => { tab.addEventListener('click', () => selectTab(tab)); tab.addEventListener('keydown', e => { let n; if (e.key === 'ArrowRight') n = (i+1)%tabs.length; if (e.key === 'ArrowLeft') n = (i-1+tabs.length)%tabs.length; if (e.key === 'Home') n = 0; if (e.key === 'End') n = tabs.length-1; if (n !== undefined) { e.preventDefault(); selectTab(tabs[n], true); } }); });
+const draftData = {
+ finance: { title: 'Une marge se pilote avant la fin du chantier.', linkedin: 'Coûts engagés, reste à dépenser et coût prévisionnel à terminaison : trois lectures complémentaires pour anticiper les dérives.\nUn tableau de bord utile commence par des définitions partagées et des données contrôlées.\nQuel indicateur vous aide le plus à anticiper ?', youtube: 'Introduction : pourquoi une marge constatée trop tard ne suffit pas.\nDémonstration : relier coût engagé, reste à dépenser et coût à terminaison.\nConclusion : vérifier les hypothèses avec le responsable du chantier.', facebook: 'Sur un chantier, où en sont les dépenses et que reste-t-il à engager ?\nAvec des données fiables et des indicateurs lisibles, on prépare des échanges concrets entre les équipes travaux et la gestion.\nUn sujet au croisement du BTP et de la Data.', site: 'Suivi financier de chantier\nObjectif : rendre lisibles les écarts entre budget, coûts engagés et prévision finale.\nApproche : cadrer les indicateurs, contrôler les données et construire une lecture partagée du reste à dépenser.' },
+ energie: { title: 'Où concentrer les efforts de rénovation ?', linkedin: 'Une étiquette DPE ne raconte pas, à elle seule, toute l’histoire d’un logement.\nSurface, période de construction, chauffage et localisation aident à caractériser les besoins.\nMon projet de formation explore cette segmentation, avec une priorité aux maisons individuelles.', youtube: 'Introduction : la question métier d’une entreprise de rénovation.\nDémonstration prévue : lire les classes énergétiques et croiser surface, construction et chauffage.\nConclusion : distinguer besoins repérés et opportunités commerciales à confirmer.', facebook: 'Mieux comprendre les logements pour mieux préparer la rénovation.\nLes données peuvent aider à repérer des profils de maisons, mais les choix de travaux nécessitent toujours une analyse technique.\nC’est le point de départ de mon projet BTP & Data.', site: 'Rénovation énergétique : une analyse de marché\nUn projet de formation pour éclairer la stratégie commerciale 2027 d’une entreprise fictive.\nPérimètre envisagé : maisons individuelles, classes A à G, caractéristiques techniques et localisation. Données et territoire à confirmer.' },
+ qualite: { title: 'Un indicateur fiable commence avant le graphique.', linkedin: 'Doublons, champs manquants, définitions différentes : les premiers obstacles sont souvent dans les données.\nDans le BTP comme ailleurs, contrôler les sources et documenter les calculs rend les décisions plus solides.\nLa qualité des données est une étape métier.', youtube: 'Introduction : un beau graphique peut masquer des données fragiles.\nDémonstration : repérer les doublons, contrôler les valeurs manquantes et vérifier les relations entre tables.\nConclusion : documenter les contrôles avant de diffuser les indicateurs.', facebook: 'Avant le tableau de bord, il y a un travail essentiel : vérifier les données.\nMême date ? Même unité ? Même définition ? Ces questions simples évitent des interprétations trompeuses.\nLa rigueur de l’ingénieur trouve ici un prolongement naturel.', site: 'Fiabiliser les données du terrain\nL’objectif : construire des indicateurs compréhensibles et vérifiables.\nLa démarche : inventorier les sources, appliquer des contrôles qualité et partager les définitions avec les équipes métier.' }
+};
+let activeChannel = 'linkedin';
+const channelLabels = {linkedin:'LinkedIn',youtube:'YouTube',facebook:'Facebook',site:'Site web'};
+function updateDraft() { const item = draftData[$('#demo-topic').value]; $('#draft-channel').textContent = 'AGENT ' + channelLabels[activeChannel].toUpperCase(); $('#draft-title').textContent = item.title; $('#draft-text').textContent = item[activeChannel]; }
+$$('[data-channel]').forEach(button => button.addEventListener('click', () => { activeChannel = button.dataset.channel; $$('[data-channel]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); updateDraft(); }));
+$('#demo-topic').addEventListener('change', updateDraft);
+$('#copy-draft').addEventListener('click', () => copyText($('#draft-title').textContent + '\n\n' + $('#draft-text').textContent, 'Proposition copiée. À relire avant toute publication.'));
+updateDraft();
+$$('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; $$('[data-filter]').forEach(b => { const selected = b === button; b.classList.toggle('selected', selected); b.setAttribute('aria-pressed', String(selected)); }); let count = 0; $$('.project-card').forEach(card => { const shown = filter === 'all' || card.dataset.category.split(' ').includes(filter); card.hidden = !shown; if(shown) count++; }); $('#filter-status').textContent = count + ' projet' + (count > 1 ? 's affichés' : ' affiché'); }));
+const projects = {
+ agents: { label:'PROTOTYPE EN COURS · IA GÉNÉRATIVE', title:'Agents IA éditoriaux', intro:'Un projet personnel au service de la communication professionnelle OYONO DATA & IA.', facts:[['Question métier','Comment préparer des contenus BTP, Data et IA cohérents tout en les adaptant au format de chaque canal ?'],['Workflow envisagé','Brief métier → préparation d’une proposition → adaptation LinkedIn, YouTube, Facebook ou site → contrôle des faits et du ton → validation humaine.'],['État actuel','Conception et prototypes en cours. Le studio de ce portfolio est une démonstration locale avec des exemples pré-rédigés ; il ne se connecte à aucun réseau social et n’exécute pas de modèle de langage.'],['Livrables visés','Consignes par agent, formats de sortie, exemples de contenus et procédure de relecture. Toute publication exige une action humaine.']] },
+ retail: { label:'PROJET DE FORMATION · DATA & BI', title:'RetailSmart', intro:'Un mini-projet intégrateur pour transformer des données de ventes en analyse décisionnelle.', facts:[['Question métier','Comment suivre les ventes, comprendre les écarts et explorer les résultats par pays, catégorie et produit ?'],['Données & grain','Lignes de commande, commandes, clients, produits et coûts simulés. Une ligne représente un produit dans une commande.'],['Démarche','Préparation et contrôles dans Power Query, relations du modèle, table de dates, mesures DAX puis visualisations Power BI.'],['Travaux réalisés','Mesures de CA net, commandes, panier moyen, coûts et marge simulés ; analyses temporelles ; pages Direction et Diagnostic et exploration des catégories.'],['Limites & présentation','Les coûts sont simulés pour la formation et la devise source n’est pas précisée. La marge reste donc une marge simulée en unités monétaires. Cette fiche décrit le travail ; le rapport Power BI n’est pas intégré à ce site.']] },
+ energie: { label:'PROJET FINAL BTP · CADRAGE EN COURS', title:'Où rénover demain ?', intro:'Éclairer la préparation de la stratégie commerciale 2027 d’une entreprise fictive de rénovation énergétique.', facts:[['Question métier','Où et sur quels profils de logements concentrer les efforts commerciaux, en privilégiant les maisons individuelles ?'],['Périmètre envisagé','Toutes les classes A à G, avec une priorisation selon les besoins de rénovation. Nantes est un territoire envisagé, à confirmer après vérification des données.'],['Axes de segmentation','Localisation, maison ou appartement, surface, période de construction, chauffage et classe énergétique.'],['Données & méthode prévues','Disponibilité et qualité des DPE à vérifier, gestion des diagnostics multiples et contrôles de cohérence. L’usage de DVF et la fiabilité d’un éventuel rapprochement restent à étudier. SQL, Python / Power Query et Power BI sont prévus.'],['Livrables visés','Fiche de cadrage, jeu de données documenté, analyses et tableau de bord ; simulation financière fondée sur des hypothèses explicites. Aucun résultat de marché ni gain financier n’est revendiqué à ce stade.']] },
+ avis: { label:'EXERCICE DE FORMATION · PROMPT ENGINEERING', title:'De l’avis au signal utile', intro:'Structurer l’analyse d’avis de clients professionnels dans le contexte pédagogique RetailSmart.', facts:[['Question métier','Comment extraire des signaux cohérents dans des avis B2B, même lorsque le texte et la note ne concordent pas ?'],['Consignes étudiées','Évaluer le sentiment d’après le texte, identifier un thème principal et un thème secondaire éventuel, signaler une urgence et produire un résumé court.'],['Approche','Taxonomie explicite, sortie JSON et distinction entre données à analyser et instructions. Les cas vides, incohérents ou non exploitables doivent être traités.'],['État & limites','Exercice de conception de prompt. La qualité du classement doit être évaluée sur des exemples relus ; aucune performance chiffrée n’est revendiquée.']] }
+};
+const dialog = $('#project-dialog');
+let previousFocus;
+function openDialog(content) { previousFocus = document.activeElement; $('#dialog-content').replaceChildren(content); dialog.showModal(); document.body.style.overflow='hidden'; $('.dialog-close').focus(); }
+function closeDialog() { dialog.close(); }
+dialog.addEventListener('close', () => { document.body.style.overflow=''; previousFocus?.focus(); });
+$('.dialog-close').addEventListener('click',closeDialog); $('.dialog-close-secondary').addEventListener('click',closeDialog);
+dialog.addEventListener('click',e => { if (e.target === dialog) { const r=dialog.getBoundingClientRect(); if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) closeDialog(); } });
+$('#dialog-contact').addEventListener('click', () => { dialog.close(); setTimeout(() => $('#contact-name').focus({preventScroll:true}), 150); });
+function projectContent(project) { const fragment = document.createDocumentFragment(); const label=document.createElement('p'); label.className='eyebrow dark';label.textContent=project.label; const h=document.createElement('h2');h.id='dialog-title';h.textContent=project.title;const intro=document.createElement('p');intro.textContent=project.intro;const facts=document.createElement('div');facts.className='dialog-facts';project.facts.forEach(([title,text])=>{const block=document.createElement('div');const heading=document.createElement('h4');heading.textContent=title;const p=document.createElement('p');p.textContent=text;block.append(heading,p);facts.append(block);});fragment.append(label,h,intro,facts);return fragment; }
+$$('[data-project]').forEach(button => button.addEventListener('click',() => openDialog(projectContent(projects[button.dataset.project]))));
+$('#privacy-button').addEventListener('click',()=>openDialog(projectContent({label:'CONFIDENTIALITÉ',title:'Confidentialité et accès',intro:'Ce portfolio public présente le parcours, les compétences et les projets de François Oyono.',facts:[['Accès','Ce site est public et hébergé sur GitHub Pages. Il peut être consulté sans compte ChatGPT ou GitHub.'],['Données & interactions','Le portfolio ne dépose pas de cookie analytique et ne contient pas de suivi publicitaire. Les démonstrations s’exécutent dans le navigateur, sans stockage des champs. L’hébergeur peut traiter les données techniques nécessaires au fonctionnement et à la sécurité du site.'],['Formulaire de contact','Le formulaire prépare un brouillon dans votre messagerie. Aucun envoi n’est réalisé par le site. Les champs ne sont pas enregistrés par le portfolio.'],['Liens externes','Les liens Facebook, YouTube et LinkedIn ouvrent les services correspondants dans un nouvel onglet. Leurs propres règles de confidentialité s’appliquent.']]})));
+const email='oyonodataia@gmail.com';
+$('#copy-email').addEventListener('click',()=>copyText(email,'Adresse e-mail copiée.'));
+let lastEmailBody='';
+$('#contact-form').addEventListener('submit',e=>{e.preventDefault();const form=e.currentTarget;if(!form.reportValidity())return;const data=new FormData(form);const name=String(data.get('nom')).trim(),company=String(data.get('entreprise')).trim(),sender=String(data.get('email')).trim(),message=String(data.get('message')).trim();if(!name||message.length<10){$('#form-status').textContent='Indiquez votre nom et un message d’au moins 10 caractères.';return;}lastEmailBody='Bonjour François,\n\n'+message+'\n\n'+name+(company?'\n'+company:'')+'\nE-mail : '+sender;const href='mailto:'+email+'?subject='+encodeURIComponent('OYONO DATA & IA — '+data.get('sujet'))+'&body='+encodeURIComponent(lastEmailBody);const fallback=$('#email-fallback');fallback.href=href;fallback.hidden=false;$('#copy-message').hidden=false;$('#form-status').textContent='Brouillon préparé. Si votre messagerie ne s’ouvre pas, copiez votre message et écrivez à l’adresse ci-contre.';window.location.href=href;});
+$('#copy-message').addEventListener('click',()=>copyText(lastEmailBody,'Votre message a été copié.'));
